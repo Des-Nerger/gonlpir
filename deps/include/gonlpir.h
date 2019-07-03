@@ -51,6 +51,8 @@ const result_t* NLPIR_ParagraphProcessA(const char *para, int *result_count,
                                         int use_user_dict);
 unsigned int NLPIR_ImportUserDict(const char *filename, int overwrite);
 
+const char * NLPIR_GetLastErrorMsg();
+
 #endif /* _GONLPIR_H_ */
 
 /* vim: set expandtab shiftwidth=2 tabstop=2: */

@@ -19,8 +19,8 @@
 package gonlpir
 
 /*
-#cgo linux CFLAGS: -DOS_LINUX -I./deps/include
-#cgo linux LDFLAGS: -L./deps/lib/linux64 -lNLPIR
+#cgo linux CFLAGS: -DOS_LINUX -I${SRCDIR}/deps/include
+#cgo linux LDFLAGS: ${SRCDIR}/deps/lib/linux64/libNLPIR.so
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,6 +31,9 @@ import "unsafe"
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
+	"runtime"
 )
 
 const (
@@ -62,7 +65,14 @@ func NewResult() *Result {
 	return p
 }
 
-func NewNLPIR(dataPath string, encoding int, licence string) (*NLPIR, error) {
+func NewNLPIR(encoding int, licence string) (*NLPIR, error) {
+	dataPath := func() string {
+		_, thisSourceFilePath, _, _ := runtime.Caller(0)
+		return filepath.Dir(thisSourceFilePath)
+	} () + "/deps"
+	previousCurrentDir, _ := filepath.Abs(".")
+	os.Chdir("/tmp")
+
 	p := &NLPIR{}
 
 	p.dataPath = dataPath
@@ -76,11 +86,12 @@ func NewNLPIR(dataPath string, encoding int, licence string) (*NLPIR, error) {
 	defer C.free(unsafe.Pointer(l))
 
 	if ret := int(C.NLPIR_Init(d, C.int(encoding), l)); ret == 0 {
-		return nil, fmt.Errorf("init failed")
+		return nil, fmt.Errorf("init failed: " + C.GoString(C.NLPIR_GetLastErrorMsg()))
 	}
 
 	global_init = true
 
+	os.Chdir(previousCurrentDir)
 	return p, nil
 }
 
