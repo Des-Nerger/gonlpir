@@ -72,6 +72,7 @@ func NewNLPIR(encoding int, licence string) (*NLPIR, error) {
 	} () + "/deps"
 	previousCurrentDir, _ := filepath.Abs(".")
 	os.Chdir("/tmp")
+	defer os.Chdir(previousCurrentDir)
 
 	p := &NLPIR{}
 
@@ -91,7 +92,6 @@ func NewNLPIR(encoding int, licence string) (*NLPIR, error) {
 
 	global_init = true
 
-	os.Chdir(previousCurrentDir)
 	return p, nil
 }
 
